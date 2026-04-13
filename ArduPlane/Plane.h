@@ -215,7 +215,7 @@ private:
 
     // flight modes convenience array
     AP_Int8 *flight_modes = &g.flight_mode1;
-    const uint8_t num_flight_modes = 6;
+    static constexpr uint8_t num_flight_modes = 6;
 
 #if AP_RANGEFINDER_ENABLED
     AP_FixedWing::Rangefinder_State rangefinder_state;
@@ -955,6 +955,9 @@ private:
     void Log_Write_OFG_Guided();
     void Log_Write_Guided(void);
     void Log_Write_Nav_Tuning();
+#if AP_RANGEFINDER_ENABLED
+    void Log_Write_RFNS();
+#endif
     void Log_Write_Status();
     void Log_Write_RC(void);
     void Log_Write_Vehicle_Startup_Messages();
@@ -1146,6 +1149,9 @@ private:
     void notify_mode(const Mode& mode);
     bool gcs_mode_enabled(const Mode::Number mode_num) const;
 
+    // Return mask of enabled modes, order does not matter, its just for tracking changes
+    uint32_t get_available_mode_enabled_mask() const override;
+
     // takeoff.cpp
     bool auto_takeoff_check(void);
     void takeoff_calc_roll(void);
@@ -1307,6 +1313,7 @@ public:
     void failsafe_check(void);
     bool is_landing() const override;
     bool is_taking_off() const override;
+    bool set_guided_velocity_NED(const Vector3f &velocity_ned_ms);
 #if AP_SCRIPTING_ENABLED || AP_EXTERNAL_CONTROL_ENABLED
     bool set_target_location(const Location& target_loc) override;
 #endif //AP_SCRIPTING_ENABLED || AP_EXTERNAL_CONTROL_ENABLED
